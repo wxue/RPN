@@ -1,10 +1,10 @@
 #include <iostream>
 #include <cmath>
-#include <cstdlib>
 #include <string>
 #include <fstream>
 #include <cctype>
 #include <vector>
+#include <stdlib.h>
 
 
 using namespace std;
@@ -15,7 +15,7 @@ using namespace std;
 int error_flag = 0;
 int dot_flag = 0;
 vector <double> operands;
-string queue;
+string queue = "";
 
 /*
  *  functions
@@ -32,17 +32,13 @@ qtov()
 {
   double fraction=0.0;
   double entire=0.0;
+  char *temp;
 
   if (queue.size() != 0) {
-    if (!dot_flag)
-      operands.push_back(double(atoi(queue)));
-    else {  // dot_flag = 1
-      fraction = double(atoi(queue));
-      fraction = fraction/(queue.size()*10);
-      entire = operands.back() + fraction;
-      operands.pop_back();
-      operands.push_back(entire);
-    }
+    strcpy(temp, queue.c_str());
+    operands.push_back(strtod(temp, NULL));
+    // printf("%s\n", temp);
+    dot_flag = 0;
   }
   queue = "";
 }
@@ -55,7 +51,6 @@ main()
 {
   string location;
   char character;
-  queue="";
   double operand_I, operand_II, temp_result;
 
   /* read input file into the queue */
@@ -88,37 +83,56 @@ main()
       if (dot_flag)
         error_flag = 1;
       else {
-        qtov();
+        queue = queue+character;
+        // printf("%s\n", queue.c_str());
         dot_flag = 1;
       }
-      input.get(character);
+      continue;
     }
 
     /* space */
     if (isspace(character)) {
       qtov();
-      input.get(character);
+      continue;
     }
 
     /* number */
-    if (!dot_flag && isdigit(character)) {
+    if (isdigit(character)) {
       queue = queue+character;
+      continue;
     }
 
+    if (error_flag)
+      continue;
+    if (operands.size() < 2) {
+      error_flag = 1;
+      continue;
+    }
     /* operations and other */
     switch (character) {
       case '+':
-        if (error_flag)
-          break;
-        if (operands.size() < 2) {
-          error_flag = 1;
-          break;
-        }
+      case '-':
+      case '*':
+      case '/':
         operand_II = operands.back();
         operands.pop_back();
         operand_I = operands.back();
         operands.pop_back();
-        temp_result = operand_I + operand_II;
+        switch (character) {
+          case '+':
+            temp_result = operand_I + operand_II;
+            break;
+          case '-':
+            temp_result = operand_I - operand_II;
+            break;
+          case '*':
+            temp_result = operand_I * operand_II;
+            break;
+          case '/':
+            temp_result = operand_I / operand_II;
+            break;
+        }
+        // cout << operand_I << " "<< operand_II << " " << temp_result << endl;
         operands.push_back(temp_result);
         break;
 
