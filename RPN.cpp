@@ -14,6 +14,7 @@ using namespace std;
  */
 int error_flag = 0;
 int dot_flag = 0;
+int pow_flag = 0;
 vector <double> operands;
 string queue = "";
 
@@ -26,6 +27,7 @@ serror()
   cout << "SYNTAX ERROR" << endl;
   error_flag = 0;
   dot_flag = 0;
+  pow_flag = 0;
   queue = "";
   operands.clear();
 }
@@ -36,13 +38,17 @@ qtov()
   double fraction=0.0;
   double entire=0.0;
   char *temp;
+  if (pow_flag) {
+    error_flag = 1;
+    return;
+  }
 
   if (queue.size() != 0) {
     if (dot_flag)
       queue = queue+'0';
     strcpy(temp, queue.c_str());
     operands.push_back(strtod(temp, NULL));
-    printf("temp: %s\n", temp);
+    // printf("temp: %s\n", temp);
     dot_flag = 0;
   }
   queue = "";
@@ -54,7 +60,7 @@ qtov()
 int 
 main() 
 {
-  string location;
+  string location, prefix_queue;
   char character;
   double operand_I, operand_II, temp_result;
   // int end_of_queue = 0;
@@ -68,12 +74,34 @@ main()
     cout << "Failed to open the input file" << endl;
     return 1;
   }
-
-  while (!input.eof()) {
+  /* prefix */
+  while(!input.eof()) {
     input.get(character);
+    if (!input.eof()) {
+      if (character=='+' || character=='-' || character=='*'
+                         || character=='/' || character=='%')
+        prefix_queue = prefix_queue+' '+character+' ';
+      else 
+        prefix_queue = prefix_queue+character;
+    }
+  }
+  input.close();
+  prefix_queue = prefix_queue+'\n';
+  ofstream prefix_out ("prefix"); 
+  prefix_out << prefix_queue;
+  prefix_out.close();
+  /* end of prefix */
+  ifstream prefix ("prefix");
+  if (prefix.fail()) {
+    cout << "Failed to open the prefix file" << endl;
+    return 1;
+  }
+
+  while (!prefix.eof()) {
+    prefix.get(character);
 
     /* meet the end of a queue and output the result/error */
-    if (input.eof() || character == '\n') {
+    if (prefix.eof() || character == '\n') {
       // if (queue.size() != 1)
       //   break;
       qtov();
@@ -116,12 +144,21 @@ main()
       error_flag = 1;
       continue;
     }
+    if (character == 'p' || character == 'o') {
+      queue = queue+character;
+      pow_flag = 1;
+      continue;
+    }
+
     /* operations and other */
     switch (character) {
       case '+':
       case '-':
       case '*':
       case '/':
+      case '%':
+      case 'w':
+        // printf("character: %c\n", character);
         qtov();
         operand_II = operands.back();
         operands.pop_back();
@@ -140,10 +177,23 @@ main()
           case '/':
             temp_result = operand_I / operand_II;
             break;
+          case '%':
+            temp_result = int(operand_I*100000) % int(operand_II*100000);
+            temp_result = temp_result/100000;
+            break;
+          case 'w':
+            if (strcmp(queue.c_str(), "po") != 0) {
+              error_flag = 1;
+              break;
+            }
+            temp_result = pow(operand_I, operand_II);
+            pow_flag = 0;
+            break;
         }
-        cout << operand_I << " "<< operand_II << " " << temp_result << endl;
+        // cout << operand_I << " "<< operand_II << " " << temp_result << endl;
         operands.push_back(temp_result);
         break;
+
 
       default:
         error_flag = 1;
@@ -151,7 +201,7 @@ main()
     }
   }
 
-  input.close();
+  prefix.close();
 
   return 0;
   }
