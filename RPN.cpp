@@ -25,6 +25,9 @@ serror()
 {
   cout << "SYNTAX ERROR" << endl;
   error_flag = 0;
+  dot_flag = 0;
+  queue = "";
+  operands.clear();
 }
 
 void
@@ -35,9 +38,11 @@ qtov()
   char *temp;
 
   if (queue.size() != 0) {
+    if (dot_flag)
+      queue = queue+'0';
     strcpy(temp, queue.c_str());
     operands.push_back(strtod(temp, NULL));
-    // printf("%s\n", temp);
+    printf("temp: %s\n", temp);
     dot_flag = 0;
   }
   queue = "";
@@ -52,6 +57,7 @@ main()
   string location;
   char character;
   double operand_I, operand_II, temp_result;
+  // int end_of_queue = 0;
 
   /* read input file into the queue */
   cout << "Please locate your input text file: " << endl;
@@ -68,6 +74,8 @@ main()
 
     /* meet the end of a queue and output the result/error */
     if (input.eof() || character == '\n') {
+      // if (queue.size() != 1)
+      //   break;
       qtov();
       if ((operands.size() > 1) || error_flag == 1)
         serror();
@@ -114,6 +122,7 @@ main()
       case '-':
       case '*':
       case '/':
+        qtov();
         operand_II = operands.back();
         operands.pop_back();
         operand_I = operands.back();
@@ -132,12 +141,13 @@ main()
             temp_result = operand_I / operand_II;
             break;
         }
-        // cout << operand_I << " "<< operand_II << " " << temp_result << endl;
+        cout << operand_I << " "<< operand_II << " " << temp_result << endl;
         operands.push_back(temp_result);
         break;
 
       default:
-        serror();
+        error_flag = 1;
+        break;
     }
   }
 
