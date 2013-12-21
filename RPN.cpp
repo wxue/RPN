@@ -102,15 +102,16 @@ main()
 
     /* meet the end of a queue and output the result/error */
     if (prefix.eof() || character == '\n') {
-      // if (queue.size() != 1)
-      //   break;
       qtov();
       if ((operands.size() > 1) || error_flag == 1)
         serror();
-      else {
-        cout << operands.back() << endl;
-        operands.clear();
+      else 
+        if (operands.size() == 1) {
+          cout << operands.back() << endl;
+          operands.clear();
       }
+        else
+          cout << endl;
       continue;
     }
 
@@ -157,9 +158,8 @@ main()
       case '*':
       case '/':
       case '%':
-      case 'w':
-        // printf("character: %c\n", character);
         qtov();
+      case 'w':
         operand_II = operands.back();
         operands.pop_back();
         operand_I = operands.back();
@@ -183,10 +183,13 @@ main()
             break;
           case 'w':
             if (strcmp(queue.c_str(), "po") != 0) {
+              printf("queue: %s\n", queue.c_str());
               error_flag = 1;
               break;
             }
             temp_result = pow(operand_I, operand_II);
+            pow_flag = 0;
+            queue = "";
             pow_flag = 0;
             break;
         }
