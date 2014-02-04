@@ -11,3 +11,9 @@ Just some rough c plus plus code using 'std::vector' to implement "reverse polis
 2. Support decimal number inputs as well as integer number inputs.
 
 3. Does not support unary operators.
+
+#### Environment
+
+Apple LLVM version 5.0 (clang-500.2.79) (based on LLVM 3.3svn)
+Target: x86_64-apple-darwin13.0.0
+Thread model: posix
