@@ -14,6 +14,10 @@ Just some rough c plus plus code using 'std::vector' to implement "reverse polis
 
 #### Environment
 
+g++ 4.2.1
+
 Apple LLVM version 5.0 (clang-500.2.79) (based on LLVM 3.3svn)
+
 Target: x86_64-apple-darwin13.0.0
+
 Thread model: posix
